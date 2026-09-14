@@ -15,32 +15,11 @@ DOCS_DIR = "documentos"
 if not os.path.exists(DOCS_DIR):
     os.makedirs(DOCS_DIR)
 
-# Obtener la API key de las variables de entorno de Render o dejar la de respaldo
+# Obtener la API key de las variables de entorno de Render
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "AQ.Ab8RN6KPZmKZVK3pGRYzINsgwMyjMobfUxjAbPEOD1GpOmpHRQ") 
 
 # Inicializar el cliente oficial de Google GenAI
 client = genai.Client(api_key=GOOGLE_API_KEY)
-
-# Cargar documentos institucionales directamente como texto plano (Ultra ligero)
-print("Cargando documentos institucionales...")
-documentos_texto = ""
-try:
-    if os.path.exists(DOCS_DIR):
-        archivos = os.listdir(DOCS_DIR)
-        for nombre_archivo in archivos:
-            ruta_archivo = os.path.join(DOCS_DIR, nombre_archivo)
-            if os.path.isfile(ruta_archivo):
-                try:
-                    with open(ruta_archivo, "r", encoding="utf-8", errors="ignore") as f:
-                        contenido = f.read()
-                        documentos_texto += f"\n--- [Documento: {nombre_archivo}] ---\n" + contenido
-                except Exception as ex:
-                    print(f"No se pudo leer {nombre_archivo}: {ex}")
-        print(f"¡Documentos cargados con éxito en memoria ligera!")
-    else:
-        print(f"Aviso: La carpeta '{DOCS_DIR}' no existe.")
-except Exception as e:
-    print(f"Aviso: Ocurrió un error al cargar los documentos ({e}).")
 
 @app.route("/")
 def index_route():
@@ -105,11 +84,23 @@ def ask():
     
     if not query:
         return jsonify({"response": "Por favor ingresa una consulta válida."})
+
+    # Leer los documentos institucionales solo al momento de la consulta (Evita saturar la RAM al iniciar)
+    documentos_texto = ""
+    try:
+        if os.path.exists(DOCS_DIR):
+            for nombre_archivo in os.listdir(DOCS_DIR):
+                ruta_archivo = os.path.join(DOCS_DIR, nombre_archivo)
+                if os.path.isfile(ruta_archivo) and nombre_archivo.endswith(".txt"):
+                    with open(ruta_archivo, "r", encoding="utf-8", errors="ignore") as f:
+                        documentos_texto += f"\n--- [{nombre_archivo}] ---\n" + f.read()[:5000]
+    except Exception as e:
+        print(f"Error leyendo documentos: {e}")
     
     system_instruction = """
     Eres el Asistente Ejecutivo e Inteligente de Transparencia de la UCSS (Universidad Católica Sedes Sapientiae). 
-    Tu objetivo es ser proactivo, formal, analítico y basarte estrictamente en los fragmentos de documentos oficiales provistos.
-    - Si el usuario pregunta por carreras, mallas, normativas o procesos institucionales, entrégale la información con precisión basándote en el contexto.
+    Tu objetivo es ser proactivo, formal, analítico y basarte estrictamente en los documentos institucionales provistos.
+    - Si el usuario pregunta por carreras, mallas, normativas o procesos institucionales, entrégale la información con precisión.
     - Sé proactivo: Termina siempre sugiriendo una acción adicional de valor.
     - Cuando menciones el portal oficial, incluye el enlace: [Portal de Transparencia UCSS](https://www.ucss.edu.pe/nosotros/transparencia).
     """
@@ -117,8 +108,8 @@ def ask():
     prompt_final = f"""
     {system_instruction}
 
-    Contexto institucional extraído de los archivos:
-    {documentos_texto[:25000]}
+    Contexto institucional:
+    {documentos_texto if documentos_texto else "No hay documentos cargados aún, responde con conocimiento general de la UCSS."}
 
     Pregunta del usuario: {query}
     """
