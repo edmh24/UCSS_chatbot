@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import json
 import os
-from google import genai
+import google.generativeai as genai
 
 app = Flask(__name__)
 app.secret_key = "ucss_transparency_professional_secret_2026"
@@ -15,11 +15,12 @@ DOCS_DIR = "documentos"
 if not os.path.exists(DOCS_DIR):
     os.makedirs(DOCS_DIR)
 
-# Obtener la API key de las variables de entorno de Render
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "AQ.Ab8RN6KPZmKZVK3pGRYzINsgwMyjMobfUxjAbPEOD1GpOmpHRQ") 
+# Configurar la API key directamente con el SDK clásico
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+genai.configure(api_key=GOOGLE_API_KEY)
 
-# Inicializar el cliente oficial de Google GenAI
-client = genai.Client(api_key=GOOGLE_API_KEY)
+# Configurar el modelo
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 @app.route("/")
 def index_route():
@@ -85,7 +86,6 @@ def ask():
     if not query:
         return jsonify({"response": "Por favor ingresa una consulta válida."})
 
-    # Leer los documentos institucionales solo al momento de la consulta (Evita saturar la RAM al iniciar)
     documentos_texto = ""
     try:
         if os.path.exists(DOCS_DIR):
@@ -115,10 +115,7 @@ def ask():
     """
 
     try:
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=prompt_final,
-        )
+        response = model.generate_content(prompt_final)
         return jsonify({"response": response.text})
 
     except Exception as e:
