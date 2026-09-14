@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import json
 import os
 from google import genai
-from llama_index.core import SimpleDirectoryReader
 
 app = Flask(__name__)
 app.secret_key = "ucss_transparency_professional_secret_2026"
@@ -16,24 +15,30 @@ DOCS_DIR = "documentos"
 if not os.path.exists(DOCS_DIR):
     os.makedirs(DOCS_DIR)
 
-# Coloca aquí tu API Key de Google AI Studio
-GOOGLE_API_KEY = "AQ.Ab8RN6KPZmKZVK3pGRYzINsgwMyjMobfUxjAbPEOD1GpOmpHRQ" 
+# Obtener la API key de las variables de entorno de Render o dejar la de respaldo
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "AQ.Ab8RN6KPZmKZVK3pGRYzINsgwMyjMobfUxjAbPEOD1GpOmpHRQ") 
 
-# Inicializar el cliente oficial y moderno de Google GenAI
+# Inicializar el cliente oficial de Google GenAI
 client = genai.Client(api_key=GOOGLE_API_KEY)
 
-# Cargar documentos institucionales al iniciar la app
+# Cargar documentos institucionales directamente como texto plano (Ultra ligero)
 print("Cargando documentos institucionales...")
 documentos_texto = ""
 try:
-    if os.path.exists(DOCS_DIR) and os.listdir(DOCS_DIR):
-        reader = SimpleDirectoryReader(DOCS_DIR)
-        docs = reader.load_data()
-        for d in docs:
-            documentos_texto += d.text + "\n--- [Documento Oficial UCSS] ---\n"
-        print(f"¡Se cargaron {len(docs)} fragmentos de documentos con éxito!")
+    if os.path.exists(DOCS_DIR):
+        archivos = os.listdir(DOCS_DIR)
+        for nombre_archivo in archivos:
+            ruta_archivo = os.path.join(DOCS_DIR, nombre_archivo)
+            if os.path.isfile(ruta_archivo):
+                try:
+                    with open(ruta_archivo, "r", encoding="utf-8", errors="ignore") as f:
+                        contenido = f.read()
+                        documentos_texto += f"\n--- [Documento: {nombre_archivo}] ---\n" + contenido
+                except Exception as ex:
+                    print(f"No se pudo leer {nombre_archivo}: {ex}")
+        print(f"¡Documentos cargados con éxito en memoria ligera!")
     else:
-        print(f"Aviso: La carpeta '{DOCS_DIR}' está vacía.")
+        print(f"Aviso: La carpeta '{DOCS_DIR}' no existe.")
 except Exception as e:
     print(f"Aviso: Ocurrió un error al cargar los documentos ({e}).")
 
@@ -113,7 +118,7 @@ def ask():
     {system_instruction}
 
     Contexto institucional extraído de los archivos:
-    {documentos_texto[:20000]}
+    {documentos_texto[:25000]}
 
     Pregunta del usuario: {query}
     """
@@ -132,4 +137,5 @@ def ask():
         })
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
