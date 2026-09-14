@@ -15,11 +15,11 @@ DOCS_DIR = "documentos"
 if not os.path.exists(DOCS_DIR):
     os.makedirs(DOCS_DIR)
 
-# Configurar la API key directamente con el SDK clásico
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+# Configurar la API key de forma robusta buscando ambas variables posibles
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY", "")
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Configurar el modelo
+# Configurar el modelo explícitamente
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 @app.route("/")
