@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UCSS | Portal Institucional{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --ucss-primary: #1e3a8a;
+            --ucss-accent: #d97706;
+            --ucss-bg: #f8fafc;
+            --ucss-card-bg: #ffffff;
+            --ucss-text: #1e293b;
+        }
+        body.dark-mode {
+            --ucss-primary: #3b82f6;
+            --ucss-accent: #f59e0b;
+            --ucss-bg: #0f172a;
+            --ucss-card-bg: #1e293b;
+            --ucss-text: #f1f5f9;
+        }
+        body {
+            background-color: var(--ucss-bg);
+            color: var(--ucss-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .ucss-sidebar-card, .ucss-chat-card, .card {
+            background-color: var(--ucss-card-bg) !important;
+            color: var(--ucss-text) !important;
+            border-radius: 1rem;
+        }
+        .ucss-quick-btn {
+            background-color: transparent;
+            border: 1px solid rgba(0,0,0,0.08);
+            color: var(--ucss-text);
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            border-radius: 0.5rem;
+        }
+        body.dark-mode .ucss-quick-btn {
+            border-color: rgba(255,255,255,0.1);
+        }
+        .ucss-quick-btn:hover {
+            background-color: var(--ucss-primary);
+            color: #ffffff;
+            border-color: var(--ucss-primary);
+            transform: translateX(3px);
+        }
+        .ucss-send-btn {
+            background-color: var(--ucss-primary);
+            border: none;
+        }
+        .ucss-send-btn:hover {
+            background-color: #172554;
+        }
+        .chat-messages-container {
+            background-color: rgba(0,0,0,0.01);
+        }
+        body.dark-mode .chat-messages-container {
+            background-color: rgba(255,255,255,0.01);
+        }
+        body.dark-mode .bg-white {
+            background-color: var(--ucss-card-bg) !important;
+            color: var(--ucss-text) !important;
+        }
+        body.dark-mode .text-dark {
+            color: var(--ucss-text) !important;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

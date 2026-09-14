@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Asistente Académico Profesional | UCSS Transparencia{% endblock %}
+{% block content %}
+<div class="container-fluid vh-100 py-3 px-md-4 d-flex flex-column overflow-hidden">
+    <div class="row flex-grow-1 g-3 overflow-hidden">
+        <!-- Panel Lateral -->
+        <div class="col-lg-3 col-md-4 d-flex flex-column h-100">
+            <div class="card ucss-sidebar-card shadow-sm border-0 flex-grow-1 p-3 d-flex flex-column overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom flex-shrink-0">
+                    <div class="d-flex align-items-center">
+                        <div class="ucss-avatar-sm me-2 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 35px; height: 35px;">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark">{{ username }}</h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">Sesión Institucional</small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button id="theme-toggle" class="btn btn-sm btn-light text-secondary rounded-circle" title="Cambiar Tema"><i class="fa-solid fa-moon"></i></button>
+                        <a href="{{ url_for('logout') }}" class="btn btn-sm btn-light text-danger rounded-circle" title="Cerrar Sesión"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase fw-bold text-muted small mb-2 px-1 flex-shrink-0"><i class="fa-solid fa-layer-group me-1 text-primary"></i> Categorías de Transparencia</h6>
+                <div class="quick-queries flex-grow-1 overflow-auto pe-1" style="max-height: calc(100vh - 210px);">
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Cuál es la misión, visión y principios de la UCSS?')"><i class="fa-solid fa-bullseye me-2 text-primary"></i> Misión y Principios</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Cómo está conformado el gobierno y autoridades?')"><i class="fa-solid fa-sitemap me-2 text-primary"></i> Gobierno y Autoridades</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Cuáles son las facultades y programas de pregrado?')"><i class="fa-solid fa-graduation-cap me-2 text-primary"></i> Facultades y Carreras</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('Muéstrame el Portal de Transparencia y sus normativas')"><i class="fa-solid fa-file-shield me-2 text-primary"></i> Portal de Transparencia</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Qué servicios ofrece bienestar universitario y biblioteca?')"><i class="fa-solid fa-book-open-reader me-2 text-primary"></i> Servicios y Biblioteca</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Cuáles son los trámites OAA, tasas y pensiones?')"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i> OAA, Tasas y Pensiones</button>
+                    <button class="btn btn-sm ucss-quick-btn w-100 text-start mb-2 text-truncate" onclick="sendQuickQuery('¿Cuáles son las filiales descentralizadas de la UCSS?')"><i class="fa-solid fa-map-location-dot me-2 text-primary"></i> Filiales y Sedes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área Principal del Chat -->
+        <div class="col-lg-9 col-md-8 d-flex flex-column h-100">
+            <div class="card ucss-chat-card shadow-sm border-0 flex-grow-1 d-flex flex-column overflow-hidden">
+                <div class="ucss-chat-header py-3 px-4 d-flex align-items-center justify-content-between border-bottom bg-white flex-shrink-0">
+                    <div class="d-flex align-items-center">
+                        <div class="ucss-bot-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-bold text-dark">Asistente Ejecutivo de Transparencia UCSS</h5>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0 small"><i class="fa-solid fa-circle fa-2xs me-1"></i> Inteligencia Activa en Línea</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-messages" class="chat-messages-container flex-grow-1 p-4 overflow-auto" style="height: 0; min-height: 0;">
+                    <div class="message-wrapper bot-msg mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="msg-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 30px; height: 30px;">
+                                <i class="fa-solid fa-robot fa-xs"></i>
+                            </div>
+                            <div class="message-content shadow-sm p-3 rounded-4 bg-white text-dark">
+                                <p class="mb-1 fw-bold text-primary">Asistente Institucional UCSS:</p>
+                                <p class="mb-0">Estimado(a) <strong>{{ username }}</strong>, bienvenido(a). He actualizado mi núcleo de razonamiento para ofrecerle respuestas proactivas, análisis detallado y enlaces directos a nuestras plataformas oficiales.<br><br>¿En qué puedo orientarle hoy?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area p-3 bg-white border-top flex-shrink-0">
+                    <div id="voice-status" class="text-danger small mb-2 fw-bold d-none"><i class="fa-solid fa-microphone-lines fa-fade me-1"></i> Escuchando atentamente... Hable ahora.</div>
+                    <form id="chat-form" class="d-flex align-items-center gap-2">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                            <input type="text" id="user-input" class="form-control border-0 px-4 py-3" placeholder="Pregunte sobre carreras, normativas, transparencia..." autocomplete="off" required>
+                            <button type="button" id="voice-btn" class="btn btn-light border-0 px-3 text-primary" title="Activar micrófono"><i class="fa-solid fa-microphone"></i></button>
+                            <button type="submit" class="btn ucss-send-btn px-4 text-white"><i class="fa-solid fa-paper-plane me-1"></i> Consultar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const themeToggle = document.getElementById('theme-toggle');
+    const voiceStatus = document.getElementById('voice-status');
+
+    let darkMode = false;
+    themeToggle.addEventListener('click', () => {
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+        themeToggle.innerHTML = darkMode ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    });
+
+    function appendMessage(sender, text, isUser = false) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${isUser ? 'user-msg' : 'bot-msg'} mb-3`;
+        
+        let formattedText = text;
+
+        // Convertir enlaces en texto tipo Markdown [Texto](URL) a etiquetas HTML seguras y clickeables
+        formattedText = formattedText.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" class="fw-bold text-decoration-underline text-primary">$1 <i class="fa-solid fa-external-link-alt fa-xs"></i></a>');
+        
+        // Convertir URLs sueltas en enlaces interactivos
+        formattedText = formattedText.replace(/(^|[^"])(https?:\/\/[^\s<]+)/g, '$1<a href="$2" target="_blank" class="fw-bold text-decoration-underline text-primary">$2 <i class="fa-solid fa-external-link-alt fa-xs"></i></a>');
+
+        formattedText = formattedText.replace(/\n/g, '<br>');
+
+        if (isUser) {
+            wrapper.innerHTML = `
+                <div class="d-flex align-items-start justify-content-end">
+                    <div class="message-content shadow-sm p-3 rounded-4 bg-primary text-white">
+                        <p class="mb-1 fw-bold">${sender}:</p>
+                        <p class="mb-0">${formattedText}</p>
+                    </div>
+                    <div class="msg-avatar bg-dark text-white rounded-circle d-flex align-items-center justify-content-center ms-2 flex-shrink-0" style="width: 30px; height: 30px;">
+                        <i class="fa-solid fa-user fa-xs"></i>
+                    </div>
+                </div>
+            `;
+        } else {
+            wrapper.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <div class="msg-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 30px; height: 30px;">
+                        <i class="fa-solid fa-robot fa-xs"></i>
+                    </div>
+                    <div class="message-content shadow-sm p-3 rounded-4 bg-white text-dark">
+                        <p class="mb-1 fw-bold text-primary">${sender}:</p>
+                        <p class="mb-0">${formattedText}</p>
+                    </div>
+                </div>
+            `;
+        }
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendQuery(queryText) {
+        if (!queryText.trim()) return;
+        appendMessage('{{ username }}', queryText, true);
+        userInput.value = '';
+
+        const typingId = 'typing-' + Date.now();
+        const typingWrapper = document.createElement('div');
+        typingWrapper.id = typingId;
+        typingWrapper.className = 'message-wrapper bot-msg mb-3';
+        typingWrapper.innerHTML = `
+            <div class="d-flex align-items-start">
+                <div class="msg-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 30px; height: 30px;">
+                    <i class="fa-solid fa-robot fa-xs"></i>
+                </div>
+                <div class="message-content shadow-sm p-3 rounded-4 bg-white text-dark">
+                    <p class="mb-0 text-muted fst-italic"><i class="fa-solid fa-spinner fa-spin me-2"></i> Procesando y analizando consulta con inteligencia artificial...</p>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(typingWrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            const res = await fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: queryText })
+            });
+            const data = await res.json();
+            
+            document.getElementById(typingId).remove();
+            
+            if (data.response) {
+                appendMessage('Asistente Institucional UCSS', data.response, false);
+            } else {
+                appendMessage('Asistente Institucional UCSS', 'Error al procesar la solicitud en el servidor.', false);
+            }
+        } catch (err) {
+            document.getElementById(typingId).remove();
+            appendMessage('Asistente Institucional UCSS', 'Error de conexión con el sistema de IA.', false);
+        }
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendQuery(userInput.value);
+    });
+
+    window.sendQuickQuery = function(query) {
+        sendQuery(query);
+    }
+
+    const voiceBtn = document.getElementById('voice-btn');
+    voiceBtn.addEventListener('click', () => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'es-PE';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                voiceBtn.classList.add('text-danger', 'fa-beat');
+                voiceStatus.classList.remove('d-none');
+            };
+
+            recognition.onresult = function(event) {
+                const speechToText = event.results[0][0].transcript;
+                userInput.value = speechToText;
+                voiceBtn.classList.remove('text-danger', 'fa-beat');
+                voiceStatus.classList.add('d-none');
+                sendQuery(speechToText);
+            };
+            
+            recognition.onerror = function() {
+                voiceBtn.classList.remove('text-danger', 'fa-beat');
+                voiceStatus.classList.add('d-none');
+                alert('No se pudo capturar audio con claridad.');
+            };
+
+            recognition.onend = function() {
+                voiceBtn.classList.remove('text-danger', 'fa-beat');
+                voiceStatus.classList.add('d-none');
+            };
+            
+            recognition.start();
+        } else {
+            alert('Su navegador no soporta reconocimiento de voz nativo.');
+        }
+    });
+</script>
+{% endblock %}

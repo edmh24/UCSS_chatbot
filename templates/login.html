@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión | UCSS{% endblock %}
+{% block content %}
+<div class="container h-100 d-flex align-items-center justify-content-center">
+    <div class="row w-100 justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0 p-4 rounded-4">
+                <div class="text-center mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 70px; height: 70px; font-size: 1.8rem;">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">UCSS Transparencia</h3>
+                    <p class="text-muted small">Asistente Ejecutivo Institucional</p>
+                </div>
+                {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ error }}
+                        <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+                <form method="POST" id="login-form">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Usuario institucional</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-user text-muted"></i></span>
+                            <input type="text" name="username" class="form-control border-start-0 ps-0" placeholder="Mínimo 3 caracteres" minlength="3" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" name="password" id="password-field" class="form-control border-start-0 border-end-0 ps-0" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                            <button class="btn btn-light border border-start-0 text-secondary" type="button" id="toggle-password" title="Mostrar contraseña"><i class="fa-solid fa-eye" id="eye-icon"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm mb-3">Iniciar Sesión</button>
+                    <div class="text-center">
+                        <small class="text-muted">¿No tienes cuenta? <a href="{{ url_for('register') }}" class="text-primary text-decoration-none fw-bold">Regístrate aquí</a></small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordField = document.getElementById('password-field');
+    const eyeIcon = document.getElementById('eye-icon');
+    togglePassword.addEventListener('click', function () {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
+{% endblock %}
