@@ -15,18 +15,22 @@ DOCS_DIR = "documentos"
 if not os.path.exists(DOCS_DIR):
     os.makedirs(DOCS_DIR)
 
-# Configurar la API key de forma robusta buscando ambas variables posibles
+# ==========================================
+# CONFIGURACIÓN DE LA API KEY DE GEMINI
+# ==========================================
+# Se lee de Render si existe, o se usa directamente tu clave de AI Studio como respaldo definitivo.
+# Configurar la API key de forma segura usando las variables de entorno de Render
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY", "")
 genai.configure(api_key=GOOGLE_API_KEY)
-
-# Configurar el modelo explícitamente
 model = genai.GenerativeModel('gemini-1.5-flash')
+
 
 @app.route("/")
 def index_route():
     if "user" in session:
         return redirect(url_for("chat"))
     return redirect(url_for("login"))
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -42,6 +46,7 @@ def login():
         else:
             error = "Usuario o contraseña incorrectos."
     return render_template("login.html", error=error)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -64,16 +69,19 @@ def register():
                 success = "¡Registro exitoso! Ya puedes iniciar sesión."
     return render_template("register.html", error=error, success=success)
 
+
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
+
 
 @app.route("/chat")
 def chat():
     if "user" not in session:
         return redirect(url_for("login"))
     return render_template("chat.html", username=session["user"])
+
 
 @app.route("/api/ask", methods=["POST"])
 def ask():
@@ -115,6 +123,8 @@ def ask():
     """
 
     try:
+        # Doble seguridad en cada llamada para forzar autenticación correcta
+        genai.configure(api_key=GOOGLE_API_KEY)
         response = model.generate_content(prompt_final)
         return jsonify({"response": response.text})
 
@@ -123,6 +133,7 @@ def ask():
         return jsonify({
             "response": "Disculpa, en este momento tengo problemas para procesar la información. Intenta nuevamente en unos segundos."
         })
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
